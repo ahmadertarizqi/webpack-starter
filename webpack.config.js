@@ -2,6 +2,26 @@ const path = require('path');
 const { merge } = require('webpack-merge');
 const { developmentConfig, productionConfig } = require('./webpack.mode');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const fs = require('fs');
+
+function generateHtmlPlugins(templateDir) {
+  const templateFiles = fs.readdirSync(path.resolve(__dirname, templateDir));
+  const templateResults = templateFiles.map(template => {
+    const parts = template.split('.');
+    const name = parts[0];
+    const extension = parts[1];
+    
+    return new HtmlWebpackPlugin({
+      filename: `${name}.html`,
+      template: path.resolve(__dirname, `${templateDir}/${name}.${extension}`),
+      minify: false,
+    });
+  });
+
+  return templateResults;
+};
+
+const htmlPlugins = generateHtmlPlugins('./src/pug');
 
 const commonConfig = {
   entry: [
@@ -29,16 +49,24 @@ const commonConfig = {
       },
       {
         test: /\.pug$/,
-        loader: 'pug-loader'
+        use: [
+          {
+            loader: 'pug-loader',
+            options: {
+              pretty: true,
+            }
+          }
+        ]
       }
     ]
   },
   plugins: [
-    new HtmlWebpackPlugin({
-      template: path.resolve(__dirname, './src/html/index.pug'),
-      filename: 'index.html',
-    }),
-  ]
+    // new HtmlWebpackPlugin({
+    //   template: path.resolve(__dirname, './src/html/index.pug'),
+    //   filename: 'index.html',
+    //   minify: false,
+    // }),
+  ].concat(htmlPlugins),
 };
 
 module.exports = (env, args) => {
