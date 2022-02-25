@@ -24,58 +24,58 @@ function generateHtmlPlugins(templateDir) {
 
 const htmlPlugins = generateHtmlPlugins('./src/pug');
 
-const commonConfig = {
-  entry: [
-    path.resolve(__dirname, './src/index.js')
-  ],
-  output: {
-    path: path.resolve(__dirname, './dist'),
-    filename: 'bundle.js'
-  },
-  module: {
-    rules: [
-      {
-        test: /\.s[ac]ss$/i,
-        use: [
-          process.env.NODE_ENV !== 'production' 
-            ? 'style-loader' 
-            : MiniCssExtractPlugin.loader,
-          'css-loader',
-          'postcss-loader',
-          {
-            loader: 'sass-loader',
-            options: {
-              sourceMap: true
+module.exports = ({ env }) => {
+  const commonConfig = {
+    entry: [
+      path.resolve(__dirname, './src/index.js')
+    ],
+    output: {
+      path: path.resolve(__dirname, './dist'),
+      filename: 'bundle.js'
+    },
+    module: {
+      rules: [
+        {
+          test: /\.s[ac]ss$/i,
+          use: [
+            env !== 'prod' 
+              ? 'style-loader' 
+              : MiniCssExtractPlugin.loader,
+            'css-loader',
+            'postcss-loader',
+            {
+              loader: 'sass-loader',
+              options: {
+                sourceMap: true
+              }
+            },
+          ],
+        },
+        {
+          test: /\.pug$/,
+          use: [
+            {
+              loader: 'pug-loader',
+              options: {
+                pretty: true,
+              }
             }
-          },
-        ],
-      },
-      {
-        test: /\.pug$/,
-        use: [
-          {
-            loader: 'pug-loader',
-            options: {
-              pretty: true,
-            }
-          }
-        ]
-      }
-    ]
-  },
-  plugins: [
-    new MiniCssExtractPlugin({
-      filename: '[name].css',
-      chunkFilename: '[id].css',
-    }),
-  ].concat(htmlPlugins),
-};
+          ]
+        }
+      ]
+    },
+    plugins: [
+      new MiniCssExtractPlugin({
+        filename: '[name].css',
+        chunkFilename: '[id].css',
+      }),
+    ].concat(htmlPlugins),
+  };
 
-module.exports = (env, args) => {
-  switch(args.mode) {
-    case 'development':
+  switch(env) {
+    case 'dev':
       return merge(commonConfig, developmentConfig);
-    case 'production':
+    case 'prod':
       return merge(commonConfig, productionConfig);
     default:
       throw new Error('No matching configuration was found!!');

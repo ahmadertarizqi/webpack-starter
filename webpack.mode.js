@@ -1,4 +1,5 @@
 const path = require('path');
+const Dotenv = require('dotenv-webpack');
 
 const developmentConfig = {
   mode: 'development',
@@ -10,6 +11,11 @@ const developmentConfig = {
       watch: true,
     },
   },
+  plugins: [
+    new Dotenv({
+      path: path.resolve(__dirname, '.env.development'),
+    })
+  ]
 };
 
 const productionConfig = {
@@ -30,6 +36,11 @@ const productionConfig = {
       },
     ],
   },
+  plugins: [
+    new Dotenv({
+      path: path.resolve(__dirname, '.env.production'),
+    })
+  ]
 };
 
 module.exports = { developmentConfig, productionConfig };
