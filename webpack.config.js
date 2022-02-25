@@ -2,6 +2,7 @@ const path = require('path');
 const { merge } = require('webpack-merge');
 const { developmentConfig, productionConfig } = require('./webpack.mode');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const fs = require('fs');
 
 function generateHtmlPlugins(templateDir) {
@@ -34,9 +35,11 @@ const commonConfig = {
   module: {
     rules: [
       {
-        test: /\.css$/,
+        test: /\.s[ac]ss$/i,
         use: [
-          'style-loader',
+          process.env.NODE_ENV !== 'production' 
+            ? 'style-loader' 
+            : MiniCssExtractPlugin.loader,
           'css-loader',
           'postcss-loader',
           {
@@ -61,11 +64,10 @@ const commonConfig = {
     ]
   },
   plugins: [
-    // new HtmlWebpackPlugin({
-    //   template: path.resolve(__dirname, './src/html/index.pug'),
-    //   filename: 'index.html',
-    //   minify: false,
-    // }),
+    new MiniCssExtractPlugin({
+      filename: '[name].css',
+      chunkFilename: '[id].css',
+    }),
   ].concat(htmlPlugins),
 };
 
